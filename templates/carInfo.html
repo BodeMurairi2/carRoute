@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Car Showcase</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="wrapper">
+
+    {% if is_car %}
+    <!-- CAR INFO SECTION -->
+    <div class="left-panel">
+      <h1><strong>{{ car_primary_info['car_name'] }}</strong></h1>
+      <p><strong>Body Style:</strong> {{ car_primary_info['car_model'] }}</p>
+      <p><strong>Year:</strong> {{ car_primary_info['car_year'] }}</p>
+      <p><strong>Color:</strong> {{ car_primary_info['color'] }}</p>
+      <p class="price">{{ car_primary_info['price'] }}</p>
+
+      <div class="spec-group">
+        <h3>Quick Specs</h3>
+        <ul>
+          <li>Horsepower: {{ car_performance_specs['horsepower'] }}</li>
+          <li>Torque: {{ car_performance_specs['torque'] }}</li>
+          <li>0–60 mph: {{ car_performance_specs['0_60_mph'] }}</li>
+          <li>Top Speed: {{ car_performance_specs['top_speed'] }}</li>
+          <li>Engine: {{ car_primary_info['engine_type'] }}</li>
+        </ul>
+      </div>
+
+      <div class="spec-group">
+        <h3>Buy Now</h3>
+        {% for url in car_primary_info['where_to_buy'] %}
+          <a href="{{ url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2 mb-2">
+            Visit {{ car_primary_info['car_name'] }} Official Site
+          </a><br><br>
+        {% endfor %}
+
+        <a href="{{ url_for('download_report') }}" class="btn btn-primary btn-sm mt-3" download>
+          Download
+        </a>
+        <a href="/send" class="btn btn-success btn-sm mt-3">Send report</a>
+        <a href="/" class="btn btn-secondary btn-sm mt-3">Back to Main</a>
+
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <img class="car-image" src="{{ car_primary_info['user_uploaded_image_url'] }}" alt="Detected Car Image" style="max-width: 100%; height: auto;" />
+
+      <div class="section">
+        <h2>Design & Appearance</h2>
+        <p><strong>Exterior:</strong> {{ car_primary_info['exterior_design'] }}</p>
+        <p><strong>Interior:</strong> {{ car_primary_info['interior_design'] }}</p>
+      </div>
+
+      <div class="section">
+        <h2>Features</h2>
+        <ul>
+          {% for feature in car_features %}
+            <li>{{ feature }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Safety</h2>
+        <ul>
+          {% for safety_feature in car_safety_features %}
+            <li>{{ safety_feature }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Notes</h2>
+        <p><strong>Special Features:</strong> {{ car_primary_info['special_features_modifications'] }}</p>
+        <p><strong>Image Description:</strong> {{ car_primary_info['image_url'] }}</p>
+      </div>
+    </div>
+
+    {% else %}
+    <!-- NOT A CAR FALLBACK -->
+    <div class="container mt-5">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h2 class="card-title text-danger">Not a Car</h2>
+          <p class="card-text">{{ car_primary_info['message'] }}</p>
+          <p class="text-muted">{{ car_primary_info['image_url'] }}</p>
+          {% if car_primary_info['user_uploaded_image_url'] %}
+            <img src="{{ car_primary_info['user_uploaded_image_url'] }}" 
+                 alt="Uploaded Image" 
+                 class="img-fluid rounded mt-3" 
+                 style="max-width: 500px;">
+                 <div class="mt-3">
+                    <button class="btn btn-primary mt-3" onclick="window.location.href='/'">Back to Main</button>
+                 </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</body>
+</html>

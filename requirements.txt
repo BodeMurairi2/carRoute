@@ -1,0 +1,6 @@
+flask
+flask_session
+google-generativeai
+python-dotenv
+boto3
+pdfkit

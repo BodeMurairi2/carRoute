@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ car_primary_info['car_name'] }} - PDF Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; }
+    h1 { color: #222; }
+    ul { padding-left: 20px; }
+    p, li { font-size: 14px; line-height: 1.6; }
+    .section { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  {% if car_primary_info['user_uploaded_image_url'] %}
+    <div style="text-align: center; margin-bottom: 20px;">
+      <img src="{{ car_primary_info['user_uploaded_image_url'] }}" alt="Uploaded Car Image" style="max-width: 400px; height: auto; border-radius: 8px;">
+    </div>
+  {% endif %}
+
+  <h1>{{ car_primary_info['car_name'] }} - {{ car_primary_info['car_model'] }}</h1>
+  <p><strong>Year:</strong> {{ car_primary_info['car_year'] }}</p>
+  <p><strong>Body Style:</strong> {{ car_primary_info['body_style'] }}</p>
+  <p><strong>Color:</strong> {{ car_primary_info['color'] }}</p>
+  <p><strong>Engine Type:</strong> {{ car_primary_info['engine_type'] }}</p>
+  <p><strong>Price Range:</strong> {{ car_primary_info['price'] }}</p>
+
+  <div class="section">
+    <h2>Performance</h2>
+    <ul>
+      <li>Horsepower: {{ car_performance_specs.get('horsepower', 'N/A') }}</li>
+      <li>Torque: {{ car_performance_specs.get('torque', 'N/A') }}</li>
+      <li>0–60 mph: {{ car_performance_specs.get('0_60_mph', 'N/A') }}</li>
+      <li>Top Speed: {{ car_performance_specs.get('top_speed', 'N/A') }}</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Features</h2>
+    <ul>
+      {% for feature in car_features %}
+        <li>{{ feature }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Safety</h2>
+    <ul>
+      {% for safety in car_safety_features %}
+        <li>{{ safety }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Special Features</h2>
+    <p>{{ car_primary_info['special_features_modifications'] }}</p>
+  </div>
+
+  <div class="section">
+    <h2>Image Description</h2>
+    <p>{{ car_primary_info['image_url'] }}</p>
+  </div>
+</body>
+</html>

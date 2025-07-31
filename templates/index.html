@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Car Finder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-2xl space-y-8">
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-4">
+          {% for category, message in messages %}
+            <div 
+              class="px-4 py-3 rounded-md text-white
+              {% if category == 'success' %}
+                bg-green-500
+              {% elif category == 'error' %}
+                bg-red-500
+              {% else %}
+                bg-blue-500
+              {% endif %}
+              "
+              role="alert"
+            >
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-gray-800">Welcome to Car Finder</h1>
+      <p class="text-lg text-gray-600 mt-2">Your AI assistant for Cars</p>
+    </div>
+
+    <div class="text-center">
+      <h2 class="text-2xl font-semibold text-gray-700"> Find all information about any car you want</h2>
+      <p class="text-gray-600">Upload your photo to our AI</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-xl font-semibold mb-4 text-gray-800 text-center">Upload Your Car Photo</h2>
+      <form action="/" method="post" enctype="multipart/form-data" class="space-y-4">
+        <div>
+          <label for="car_photo" class="block text-gray-700 font-medium mb-1">Choose a car image:</label>
+          <input type="file" id="car_photo" name="car_photo" accept=".jpg,.jpeg,.png,.webp" required
+                 class="w-full border border-gray-300 rounded-md px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"/>
+        </div>
+        <div class="text-center">
+          <button type="submit"
+                  class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-semibold">
+            Upload
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <footer>
+      <div class="text-center text-gray-500 mt-8 space-y-1">
+        <p>&copy; 2023 Car Finder. All rights reserved.</p>
+        <p>Made by Bode Murairi <a href="mailto:bodemurairi2@gmail.com" class="text-blue-600 underline">Contact Me!</a></p>
+        <p><a href="https://www.linkedin.com/in/bode-murairi-2490501aa/" target="_blank" class="text-blue-600 underline">LinkedIn</a></p>
+        <p><a href="https://github.com/BodeMurairi?tab=repositories" target="_blank" class="text-blue-600 underline">Github page</a></p>
+        <p>Special Thanks to Google</p>
+        <p>Powered by Gemini AI</p>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

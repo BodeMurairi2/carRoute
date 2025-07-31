@@ -1,0 +1,87 @@
+  * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f1f1f1;
+      color: #333;
+    }
+    .wrapper {
+      max-width: 1200px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 10px;
+      display: flex;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    }
+    .left-panel {
+      flex: 1;
+      background: #111;
+      color: #fff;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .left-panel h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .left-panel p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    .spec-group {
+      margin-top: 20px;
+    }
+    .spec-group h3 {
+      font-size: 16px;
+      color: #aaa;
+      margin-bottom: 5px;
+    }
+    .spec-group ul {
+      padding-left: 20px;
+      list-style: circle;
+    }
+    .spec-group ul li {
+      margin-bottom: 6px;
+    }
+    .right-panel {
+      flex: 2;
+      padding: 30px;
+      background: #fff;
+    }
+    .car-image {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      font-size: 18px;
+      color: #222;
+      margin-bottom: 10px;
+    }
+    .section p, .section li {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .section ul {
+      list-style: square;
+      padding-left: 20px;
+    }
+    .price {
+      font-size: 16px;
+      color: #0066cc;
+      font-weight: bold;
+    }
+    a {
+      color: #007acc;
+      text-decoration: none;
+    }
