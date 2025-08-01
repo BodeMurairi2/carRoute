@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
+from pathlib import Path
 import re
-import json
 import ssl
 import pdfkit
 import secrets
@@ -19,15 +19,22 @@ from werkzeug.utils import secure_filename
 # Load environment variables
 load_dotenv('config.env')
 
-UPLOAD_DIR = "/home/bode-murairi/temp_uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-os.makedirs("temp_session", exist_ok=True)
+# Base directory (where this script lives)
+BASE_DIR = Path(__file__).resolve().parent
+
+# Absolute paths for upload and session folders using pathlib
+UPLOAD_DIR = BASE_DIR / "temp_uploads"
+SESSION_DIR = BASE_DIR / "temp_session"
+
+# Create directories if they don't exist
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+SESSION_DIR.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_FILE_DIR'] = os.path.abspath("temp_session")
+app.config['SESSION_FILE_DIR'] = str(SESSION_DIR)  # Flask expects string paths here
 app.config['SESSION_PERMANENT'] = False
 
 Session(app)
@@ -38,16 +45,15 @@ def home():
         file = request.files.get("car_photo")
         if file:
             filename = secure_filename(file.filename)
-            local_path = os.path.join(UPLOAD_DIR, filename)
-            file.save(local_path)
+            local_path = UPLOAD_DIR / filename
+            file.save(str(local_path))
 
-            response_dict = get_request(image_path=local_path)
-            uploaded_image_url = upload_user_image(image_path=local_path, file_name=filename)
+            response_dict = get_request(image_path=str(local_path))
+            uploaded_image_url = upload_user_image(image_path=str(local_path), file_name=filename)
 
             session['response_json'] = response_dict
             session['uploaded_image_url'] = uploaded_image_url
 
-            os.remove(local_path)
             return redirect(url_for('get_infos'))
 
     return render_template("index.html")
@@ -59,8 +65,7 @@ def get_infos():
     uploaded_image_url = session.get('uploaded_image_url', None)
 
     is_car = data.get("is_car", False)
-    print(is_car)
-    print(data)
+
     if is_car:
         car_details = data.get("car_details", {})
         car_primary_info = {
@@ -143,7 +148,7 @@ def download_report():
         car_performance_specs=car_performance_specs
     )
 
-    config = pdfkit.configuration()
+    config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
     pdf = pdfkit.from_string(html, False, configuration=config)
 
     response = make_response(pdf)
@@ -192,8 +197,9 @@ def send_report():
             car_safety_features=car_safety_features,
             car_performance_specs=car_performance_specs
         )
-
-        pdf = pdfkit.from_string(html, False)
+        
+        config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
+        pdf = pdfkit.from_string(html, False, configuration=config)
 
         my_email = os.getenv("SENDER_EMAIL")
         my_password = os.getenv("SENDER_APP_PASSWORD")
@@ -220,9 +226,6 @@ def send_report():
     return render_template("email.html")
 
 
-@app.route("/test")
+@app.route("/run")
 def test():
     return "Hello from Web-02"
-
-if __name__ == "__main__":
-    app.run(debug=True)
