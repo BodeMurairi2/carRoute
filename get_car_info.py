@@ -1,110 +1,41 @@
-# get_car_info.py
+#!/usr/bin/env python3
 
+import boto3
 import os
-import json
-import re
 from dotenv import load_dotenv
-import google.generativeai as genai
-from PIL import Image
+from botocore.client import Config
 
-# Load environment variables
 load_dotenv('auth.env')
 
-# Configure Gemini API key
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+R2_ACCESS_KEY_ID = os.getenv("CLOUDFLARE_ACCESS_KEYID")
+R2_SECRET_ACCESS_KEY = os.getenv("SECRET_ACCESS_KEY")
+R2_BUCKET_NAME = os.getenv("R2_BUCKET_NAME")
+R2_ENDPOINT_URL = os.getenv("R2_ENDPOINT")
 
-def get_request(image_path):
-    """Send image + prompt to Gemini, return structured Python dict or None if failed."""
-    print(f"[Debug] get_request() called with: {image_path}")
-    try:
-        # Load image
-        image = Image.open(image_path)
+s3 = boto3.client(
+    's3',
+    aws_access_key_id=R2_ACCESS_KEY_ID,
+    aws_secret_access_key=R2_SECRET_ACCESS_KEY,
+    endpoint_url=R2_ENDPOINT_URL,
+    config=Config(signature_version='s3v4')
+)
 
-        # Initialize Gemini vision model
-        model = genai.GenerativeModel(model_name=os.getenv("GEMINI_AI_MODEL", "gemini-pro-vision"))
+def upload_user_image(image_path, file_name):
+    """Function to upload user image to cloudflare"""
+    path_to_upload = f"user_data/uploads/{file_name}"
 
-        # Prompt Gemini for structured JSON
-        prompt = (
-            "About this image: First, tell me if it's a car or not. "
-            "If it is a car, return a JSON object with this structure: "
-            "{ "
-                "\"is_car\": true, "
-                "\"car_details\": { "
-                    "\"brand\": string, "
-                    "\"model\": string, "
-                    "\"approximate_year\": string, "
-                    "\"body_style\": string, "
-                    "\"exterior_design\": string, "
-                    "\"interior_design\": string, "
-                    "\"color\": string, "
-                    "\"lights\": string, "
-                    "\"wheels\": string, "
-                    "\"technology\": string, "
-                    "\"price_range\": string, "
-                    "\"where_to_buy\": string, "
-                    "\"car_features\": [string, ...], "
-                    "\"engine_type\": string, "
-                    "\"performance_specifications\": { "
-                        "\"horsepower\": string, "
-                        "\"torque\": string, "
-                        "\"0_60_mph\": string, "
-                        "\"top_speed\": string "
-                    "}, "
-                    "\"safety_features\": [string, ...], "
-                    "\"image_url_info\": string, "
-                    "\"special_features_modifications\": string "
-                "} "
-            "}. "
-            "If it’s NOT a car, return: "
-            "{ "
-                "\"is_car\": false, "
-                "\"image_url_info\": string "
-            "}. Only return valid JSON. No extra explanation."
+    with open(image_path, "rb") as f:
+        response = s3.put_object(
+            Bucket=R2_BUCKET_NAME,
+            Key=path_to_upload,
+            Body=f.read()
         )
 
-        # Send image and prompt to Gemini
-        response = model.generate_content([prompt, image])
-        raw_text = response.text.strip()
-
-        # Extract only the JSON part using regex
-        json_match = re.search(r'\{[\s\S]+\}', raw_text)
-        if not json_match:
-            print("❌ No valid JSON found in Gemini response.")
-            print(raw_text)
-            return None
-
-        json_text = json_match.group()
-
-        # Parse the JSON text
-        data = json.loads(json_text)
-
-        # Normalize "is_car" to boolean if needed
-        if isinstance(data.get("is_car"), str):
-            data["is_car"] = data["is_car"].strip().lower() == "true"
-
-        # If it's not a car, make sure only minimal structure is returned
-        if not data.get("is_car", False):
-            return {
-                "is_car": False,
-                "image_url_info": data.get("image_url_info", "No image info provided")
-            }
-
-        # Else, it's a car – return full structure
-        return data
-
-    except json.JSONDecodeError as je:
-        print(f"❌ JSON parsing error: {je}")
-        return None
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}")
-        return None
+    base_url = os.getenv("R2_PUBLIC_URL_BASE").rstrip("/")
+    public_url = f"{base_url}/{path_to_upload}"
+    print(f"Image uploaded to: {public_url}")
+    return public_url
 
 if __name__ == "__main__":
-    # Example usage
-    image_path = "/home/bode-murairi/Pictures/car/images.jpeg"
-    result = get_request(image_path)
-    if result:
-        print(json.dumps(result, indent=2))
-    else:
-        print("Failed to get a valid response from Gemini.")
+    upload_user_image(image_path,filename)
 
