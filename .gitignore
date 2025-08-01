@@ -1,0 +1,21 @@
+# ignore venv/
+venv/
+
+# ignore __pycache__
+__pycache__/
+
+# ignore temp_session/ and temp_uploads/
+temp_session/
+temp_uploads/
+
+# ignore env variables
+*.env
+
+# ignore service_account.json
+service_account.json
+
+# ignore run.sh
+run.sh
+
+# ignore t.py
+t.py
