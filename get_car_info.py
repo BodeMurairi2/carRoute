@@ -15,12 +15,13 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def get_request(image_path):
     """Send image + prompt to Gemini, return structured Python dict or None if failed."""
+    print(f"[Debug] get_request() called with: {image_path}")
     try:
         # Load image
         image = Image.open(image_path)
 
         # Initialize Gemini vision model
-        model = genai.GenerativeModel(model_name=os.getenv("GEMINI_AI_MODEL"))
+        model = genai.GenerativeModel(model_name=os.getenv("GEMINI_AI_MODEL", "gemini-pro-vision"))
 
         # Prompt Gemini for structured JSON
         prompt = (
@@ -68,7 +69,7 @@ def get_request(image_path):
         # Extract only the JSON part using regex
         json_match = re.search(r'\{[\s\S]+\}', raw_text)
         if not json_match:
-            print("No valid JSON found in Gemini response.")
+            print("❌ No valid JSON found in Gemini response.")
             print(raw_text)
             return None
 
@@ -92,10 +93,10 @@ def get_request(image_path):
         return data
 
     except json.JSONDecodeError as je:
-        print(f"JSON parsing error: {je}")
+        print(f"❌ JSON parsing error: {je}")
         return None
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        print(f"❌ Unexpected error: {e}")
         return None
 
 if __name__ == "__main__":
@@ -106,3 +107,4 @@ if __name__ == "__main__":
         print(json.dumps(result, indent=2))
     else:
         print("Failed to get a valid response from Gemini.")
+
