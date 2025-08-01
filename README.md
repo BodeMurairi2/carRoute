@@ -15,7 +15,10 @@ Deploy the **carRoute** Flask app on two web servers (`web-01`, `web-02`) using 
 
 ```bash
 sudo apt update
-sudo apt install python3 python3-venv python3-pip nginx -y
+sudo apt install software-properties-common -y
+sudo add-apt-repository ppa:deadsnakes/ppa -y
+sudo apt update
+sudo apt install python3.10 python3.10-venv python3.10-dev -y
 ```
 </details>
 
@@ -24,7 +27,7 @@ sudo apt install python3 python3-venv python3-pip nginx -y
 
 ```bash
 cd /home/ubuntu/
-git clone <your-git-repo-url> carRoute
+git clone https://github.com/BodeMurairi2/carRoute.git
 cd carRoute
 python3 -m venv venv
 source venv/bin/activate
@@ -107,8 +110,8 @@ frontend http_front
 backend carroute_servers
     balance roundrobin
     option httpchk GET /
-    server web01 <web-01-ip>:80 check
-    server web02 <web-02-ip>:80 check
+    server web01 54.211.222.161:80 check
+    server web02 44.203.73.117:80 check
 ```
 Replace `<web-01-ip>` and `<web-02-ip>` with your actual IPs.
 
@@ -124,10 +127,11 @@ sudo systemctl restart haproxy
 
 - Access the app via the load balancer:
   ```bash
-  curl http://<lb-01-ip>
+  curl http://13.221.249.199/
   ```
 - Refresh several times to see load balancing in action.
 - Check logs on web servers and HAProxy for confirmation.
+- I added an header on the request so whenever a request the loadbalancer, I could view where the loadbalancer sent the traffic.
 
 ---
 
@@ -135,20 +139,36 @@ sudo systemctl restart haproxy
 
 - Store API keys as environment variables on each web server.
 - Access them in Flask via `os.getenv()`.
+- I used the SCP protocole to copy auth.env and config.env from my computer to my web-01 and web-02
 - **Never** hardcode secrets in code or configs.
 
 ---
+##
+Application video: https://www.loom.com/share/f836d28a01f44afabae699badec32f04?sid=02ed1e8d-eecd-4e3a-885a-7cc3e2c89894
+Application deploy on : Web-01: http://54.211.222.161/
+                        Web-02: http://44.203.73.117/
+Loadbalencer done and http redirect to https: http://13.221.249.199/
+Note: enlightenment-lab.tech is not yet propagated. So, I could not proceed with the encryption with let's encrypt.
 
 ## Credits
 
 - [Flask](https://flask.palletsprojects.com/)
 - [HAProxy](https://www.haproxy.org/)
 - [Nginx](https://www.nginx.com/)
-- Gemini API
-- Cloudflare
+- Google-generativeai with model gemini-2.5-flash
+- Cloudflare R2 Bucket for storing each image
+- Amazon AWS API via booto3, which is compatible to R2 Bucket for Cloudflare
 
 ---
-
+## Challenges
+- My servers used Python 3.8 version, an old version of Python, which created many dependency issues.
+- I could not install Google Genai on my server. As a result, I rewrote my get_request() function using google-generativeai module.
+- However, since it was an old Python version, Google-GenerativeAI 0.1 was installed by default each time I tried to install using pip
+- I had to manually install Python 3.10 and specify Google-GenerativeAI version 0.3.2 to overcome this problem
+- As I was building a Flask application, I needed a process manager, gunicorn. Setting up gunicorn to keep running app.py was another challenge
+- Serving nginx for a Flask application was really hectic in many different ways.
+- I believe I could have a better result using Docker to containerize my application and avoid modules and dependency issues.
+- I learned a lot during this project and am open to any feedback and areas of improvement
 ## Author
 
 **Bode Murairi**  
